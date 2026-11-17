@@ -2,6 +2,7 @@ export class CaptureRepository {
   constructor(database) {
     this.database = database;
     this.findFingerprint = database.prepare("SELECT * FROM captures WHERE feed_id=? AND fingerprint=?");
+    this.findCapture = database.prepare("SELECT * FROM captures WHERE feed_id=? AND capture_id=?");
     this.insertCapture = database.prepare(`INSERT INTO captures
       (feed_id, fingerprint, captured_at, accepted, candidate_count, normalized_count,
        rejected_count, duplicate_count, reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
@@ -13,6 +14,12 @@ export class CaptureRepository {
 
   findByFingerprint(feedId, fingerprint) {
     const row = this.findFingerprint.get(feedId, fingerprint);
+    return row ? mapCapture(row) : null;
+  }
+
+  get(feedId, captureId) {
+    if (!Number.isSafeInteger(captureId) || captureId < 1) return null;
+    const row = this.findCapture.get(feedId, captureId);
     return row ? mapCapture(row) : null;
   }
 

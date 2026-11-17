@@ -10,7 +10,7 @@ test("compares two accepted captures and reports additions separately from omiss
   archive.importSnapshot("daily-main", page([{ id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }]), captureTime(2));
   const report = archive.feedChanges("daily-main");
   assert.equal(report.ready, true);
-  assert.deepEqual(report.counts, { added: 1, omitted: 1, current: 4, previous: 4 });
+  assert.deepEqual(report.counts, { added: 1, omitted: 1, retitled: 0, current: 4, previous: 4 });
   assert.equal(report.added[0].canonicalUrl, "https://news.example.test/2026/11-16/article-5.shtml");
   assert.equal(report.omitted[0].canonicalUrl, "https://news.example.test/2026/11-16/article-1.shtml");
   assert.match(report.note, /not that the publisher deleted/);
@@ -49,7 +49,7 @@ test("returns a clear not-ready report until two accepted pages exist", async (t
   assert.equal(report.ready, false);
   assert.equal(report.latestCapture.normalizedCount, 3);
   assert.equal(report.previousCapture, null);
-  assert.deepEqual(report.counts, { added: 0, omitted: 0, current: 3, previous: 0 });
+  assert.deepEqual(report.counts, { added: 0, omitted: 0, retitled: 0, current: 3, previous: 0 });
 });
 
 test("serves the comparison through the API and distinguishes an unknown feed", async (t) => {

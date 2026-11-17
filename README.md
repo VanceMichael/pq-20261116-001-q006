@@ -25,15 +25,18 @@ npm run demo
 - `GET /v1/feeds/:feedId`：查看 feed 状态、文章统计和采集健康。
 - `GET /v1/feeds/:feedId/items`：分页读取文章；`visibility=visible|quiet` 可过滤状态。
 - `GET /v1/feeds/:feedId/runs`：读取近期页面快照接纳/拒绝记录。
+- `GET /v1/feeds/:feedId/captures/:captureId/items`：查看某次快照采集当时看到的文章字段；`title` 为当时标题，`currentTitle` 为最新已接纳标题。
 - `GET /v1/feeds/:feedId/attempts`：读取抓取请求、重试、失败和响应审计。
-- `GET /v1/feeds/:feedId/changes`：比较最近两次已接纳快照；未达到两次时返回 `409`。
+- `GET /v1/feeds/:feedId/changes`：比较最近两次已接纳快照，分列新增、消失与标题更正；未达到两次时返回 `409`。
 - `GET /v1/feeds/:feedId/health`：读取 24 小时抓取成功率、最近成功时间和异常提示。
 - `GET /v1/feeds/:feedId/items.csv`：流式导出；限制输出行数并转义表格公式前缀。
 - `PATCH /v1/feeds/:feedId/items/:articleId/review`：按修订号更新审核状态，状态为 `unreviewed`、`confirmed` 或 `withdrawn`。
 - `GET /v1/feeds/:feedId/items/:articleId/review`：查看审核事件历史。
-- `GET /v1/feeds/:feedId/items/:articleId/history`：查看文章在已接纳列表快照中的出现位置和间隔。
+- `GET /v1/feeds/:feedId/items/:articleId/history`：查看文章在已接纳列表快照中的出现位置、间隔、每次看到的标题，以及标题修订序列。
 - `GET /health`：进程健康检查。
 
 抓取失败、页面异常和正常列表变更有不同记录。相同页面指纹重复提交时不会重复增加文章观察次数。短暂缺失需达到来源配置的连续快照阈值后才转为 `quiet`，重新出现时恢复 `visible`。人工审核状态独立于可见性状态，旧修订号会得到冲突响应而不会覆盖新审核决定。
+
+每次已接纳快照都会记住采集当时看到的标题与发布时间：历史快照、文章时间线和相邻快照比较用这些当时字段区分标题更正与文章新增，而当前列表和 CSV 始终显示最新已接纳标题。标题每次来源变化都追加一个修订——从甲改乙再改回甲是三个修订（两次变化），历史不会被抹平；同一页面重放、标题未变的再次采集，以及被质量规则拒绝的快照都不会产生新修订。标题修订序列与人工审核的修订序列各自独立。从旧版本数据库升级时，旧快照中无法证实的历史标题显示为未知（`null`），不会用当前标题倒填成事实。
 
 仓库中的 HTML 样本为本地合成数据，仅用于离线演示和测试。实际部署前请配置准确来源域名，并遵守来源站点的使用条件。本服务不在后台隐式启动定时抓取；由操作者或外部调度器显式触发刷新。

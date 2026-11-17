@@ -17,6 +17,7 @@ export class ArticleTimelineService {
         captureId: row.capture_id,
         capturedAt: row.captured_at,
         sourceIndex: row.source_index,
+        title: row.captured_title ?? null,
         listingSize: row.normalized_count,
         untilNextObservationSeconds: gapMs === null ? null : Number((gapMs / 1000).toFixed(3))
       };
@@ -26,6 +27,7 @@ export class ArticleTimelineService {
       observationCount: observations.length,
       firstObservedAt: observations.at(-1)?.capturedAt ?? null,
       mostRecentlyObservedAt: observations[0]?.capturedAt ?? null,
+      titleRevisions: this.articles.titleRevisions(articleId, limit),
       observations
     };
   }

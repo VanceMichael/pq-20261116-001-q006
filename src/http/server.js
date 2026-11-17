@@ -92,6 +92,10 @@ async function routeRequest(request, response, archive) {
     const result = archive.listCaptures(feedId, url.searchParams.get("limit"));
     return result ? writeJson(response, 200, { runs: result }) : notFound(response);
   }
+  if (segments.length === 6 && segments[3] === "captures" && segments[5] === "items" && request.method === "GET") {
+    const result = archive.captureItems(feedId, Number(segments[4]));
+    return result ? writeJson(response, 200, result) : notFound(response);
+  }
   if (segments.length === 4 && segments[3] === "attempts" && request.method === "GET") {
     const result = archive.listFetchAttempts(feedId, url.searchParams.get("limit"));
     return result ? writeJson(response, 200, { attempts: result }) : notFound(response);

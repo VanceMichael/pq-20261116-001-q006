@@ -80,6 +80,13 @@ export class NewsArchive {
     return this.captures.recent(feedId, limit);
   }
 
+  captureItems(feedId, captureId) {
+    if (!this.feeds.get(feedId)) return null;
+    const capture = this.captures.get(feedId, Number(captureId));
+    if (!capture) return null;
+    return { capture, items: this.articles.forCapture(capture.captureId) };
+  }
+
   listFetchAttempts(feedId, limit) {
     return this.refreshes.recent(feedId, limit);
   }
